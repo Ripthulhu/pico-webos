@@ -15,10 +15,8 @@ Or take the IPK from the releases and install it with the webOS dev tools.
 
 ## Controls
 
-- Magic Remote: point and click, like the original.
-- Arrows: step through the buttons on screen.
-- OK: press the selected button.
-- Back: close the game.
+Point and click with the Magic Remote, like the original. Back closes the game,
+and 0 shows frame timings.
 
 Note that sound starts on the first key press or click, cause the TV won't play
 audio before you do something.

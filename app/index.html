@@ -7,11 +7,13 @@
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
 #screen{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:auto}
 #status{position:absolute;left:0;right:0;top:45%;text-align:center;color:#ccc;font:32px sans-serif}
+#stats{display:none;position:absolute;left:1vw;top:1vh;padding:.4em .6em;background:rgba(0,0,0,.7);color:#0f0;font:2.4vh monospace;white-space:pre}
 </style>
 </head>
 <body>
 <canvas id="screen"></canvas>
 <div id="status">Loading…</div>
+<div id="stats"></div>
 <script src="pico.js"></script>
 <script src="main.js"></script>
 </body>

@@ -12,21 +12,21 @@
       "id": "org.local.picoschool",
       "title": "Pico's School",
       "iconUri": "https://raw.githubusercontent.com/Ripthulhu/pico-webos/main/app/largeIcon.png",
-      "manifestUrl": "https://github.com/Ripthulhu/pico-webos/releases/download/v0.1.0/webosbrew.manifest.json",
+      "manifestUrl": "https://github.com/Ripthulhu/pico-webos/releases/download/v0.1.1/webosbrew.manifest.json",
       "manifest": {
         "id": "org.local.picoschool",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "type": "web",
         "title": "Pico's School",
         "appDescription": "Pico's School, rebuilt in C and running as WebAssembly.",
         "iconUri": "https://raw.githubusercontent.com/Ripthulhu/pico-webos/main/app/largeIcon.png",
         "sourceUrl": "https://github.com/Ripthulhu/pico-webos",
         "rootRequired": false,
-        "ipkUrl": "https://github.com/Ripthulhu/pico-webos/releases/download/v0.1.0/org.local.picoschool_0.1.0_all.ipk",
+        "ipkUrl": "https://github.com/Ripthulhu/pico-webos/releases/download/v0.1.1/org.local.picoschool_0.1.1_all.ipk",
         "ipkHash": {
-          "sha256": "46c521b0ef7c89b7c30c3361d60036f80bdeb960d02e626ebf7fbf3bed6a49cf"
+          "sha256": "9c3d799e7145fec7d1ee56b78ddffbdc9429fca11dac78a629ac47c66483da79"
         },
-        "ipkSize": 12798214
+        "ipkSize": 12795968
       },
       "pool": "main",
       "shortDescription": "Pico's School, rebuilt in C and running as WebAssembly."

@@ -9,15 +9,17 @@ out="$here/build/app"
 rm -rf "$here/build"
 mkdir -p "$out/assets"
 
+# web_main.c includes src/pico_render.c itself, so it isn't listed here.
 # MIN_CHROME_VERSION=79 keeps the wasm features and JS syntax the TV's engine
-# understands, e.g. no BigInt integration, which only arrived in Chrome 85.
+# understands. WASM_BIGINT=0 has to be said outright though: Emscripten 4
+# leaves BigInt integration on, and Chromium only gained it in version 85.
 emcc -O3 -std=c99 -DPICO_RENDER_MAX_WIDTH=3840 \
-  -I"$root/include" -I"$root/generated" -I"$root/platform" \
-  "$root"/src/pico.c "$root"/src/pico_render.c "$root"/src/pico_audio.c "$root"/src/pico_ui.c \
+  -I"$root/include" -I"$root/generated" -I"$root/platform" -I"$root/src" \
+  "$root"/src/pico.c "$root"/src/pico_audio.c "$root"/src/pico_ui.c \
   "$root/generated/game_data.c" "$root/platform/host_common.c" "$here/web_main.c" \
-  -sMIN_CHROME_VERSION=79 -sENVIRONMENT=web -sMODULARIZE=1 -sEXPORT_NAME=PicoModule \
+  -sMIN_CHROME_VERSION=79 -sWASM_BIGINT=0 -sENVIRONMENT=web -sMODULARIZE=1 -sEXPORT_NAME=PicoModule \
   -sINITIAL_MEMORY=64MB -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=1MB \
-  -sEXPORTED_FUNCTIONS=_malloc,_free -sEXPORTED_RUNTIME_METHODS=HEAPU8,HEAP16 \
+  -sEXPORTED_FUNCTIONS=_malloc,_free -sEXPORTED_RUNTIME_METHODS=HEAPU8,HEAP16,HEAPU32,HEAPF32 \
   -sFILESYSTEM=0 -o "$out/pico.js"
 # Emscripten's module template still emits optional chaining, which Chromium
 # only parses from version 80. Rewrite it, then make sure nothing newer is left.
