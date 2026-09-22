@@ -1,0 +1,13 @@
+{
+  "id": "org.local.picoschool",
+  "version": "0.1.0",
+  "vendor": "Ripthulhu",
+  "type": "web",
+  "main": "index.html",
+  "title": "Pico's School",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true,
+  "requiredACG": []
+}
