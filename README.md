@@ -1,8 +1,7 @@
 # pico-webos
 
 Pico's School for LG webOS TVs. It's [pico-c](https://github.com/Ripthulhu/pico-c)
-compiled to WebAssembly and run as a webOS web app, and it targets Chromium 79,
-so older TVs can play it too.
+compiled to WebAssembly and run as a webOS web app, and it targets Chromium 79.
 
 ## Install
 
@@ -11,15 +10,10 @@ Pico's School from it:
 
     https://raw.githubusercontent.com/Ripthulhu/pico-webos/main/repo.json
 
-Or take the IPK from the releases and install it with the webOS dev tools.
 
 ## Controls
 
-Point and click with the Magic Remote, like the original. Back closes the game,
-and 0 shows frame timings.
-
-Note that sound starts on the first key press or click, cause the TV won't play
-audio before you do something.
+Point and click with the Magic Remote
 
 ## Build
 
