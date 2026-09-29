@@ -5,6 +5,7 @@
  * picture at 2x, almost all of it decoding and compositing pixels. */
 #include "host_common.h"
 #include "pico_audio.h"
+#include "touch_input.h"
 #include <emscripten/emscripten.h>
 #include <stdlib.h>
 #include <string.h>
@@ -137,12 +138,12 @@ EMSCRIPTEN_KEEPALIVE uint8_t *web_leaf(unsigned index) {
 }
 EMSCRIPTEN_KEEPALIVE unsigned *web_leaf_size(void) { return leaf_size; }
 
-/* Stage pixels, already mapped by JS; a negative x means off the picture. */
+/* Stage pixels, already mapped by JS. The remote gets a 14-pixel click margin. */
 EMSCRIPTEN_KEEPALIVE void web_pointer(double x, double y, int down) {
-    if (x < 0)
-        pico_pointer(&app.game, -65536, -65536, down);
-    else
-        pico_pointer(&app.game, (int32_t)(x * 65536.0), (int32_t)(y * 65536.0), down);
+    if (!(x >= 0 && x < 550 && y >= 0 && y < 350))
+        x = y = -1;
+    host_touch_pointer(&app.game, (int32_t)(x * 65536.0), (int32_t)(y * 65536.0), down,
+                       14 * 65536);
 }
 
 /* Interleaved stereo PCM16, matching the page's 2048-frame audio callback. */

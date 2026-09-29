@@ -13,7 +13,9 @@ Pico's School from it:
 
 ## Controls
 
-Point and click with the Magic Remote
+Point and click with the Magic Remote. Clicks allow a 14-pixel margin in the
+original 550x350 game coordinates, scaled with the picture. Direct hits take
+priority, and moving outside the picture cancels a held click.
 
 ## Build
 

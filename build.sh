@@ -16,7 +16,7 @@ mkdir -p "$out/assets"
 emcc -O3 -std=c99 -DPICO_RENDER_MAX_WIDTH=3840 \
   -I"$root/include" -I"$root/generated" -I"$root/platform" -I"$root/src" \
   "$root"/src/pico.c "$root"/src/pico_audio.c "$root"/src/pico_ui.c \
-  "$root/generated/game_data.c" "$root/platform/host_common.c" "$here/web_main.c" \
+  "$root/generated/game_data.c" "$root/platform/host_common.c" "$root/platform/touch_input.c" "$here/web_main.c" \
   -sMIN_CHROME_VERSION=79 -sWASM_BIGINT=0 -sENVIRONMENT=web -sMODULARIZE=1 -sEXPORT_NAME=PicoModule \
   -sINITIAL_MEMORY=64MB -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=1MB \
   -sEXPORTED_FUNCTIONS=_malloc,_free -sEXPORTED_RUNTIME_METHODS=HEAPU8,HEAP16,HEAPU32,HEAPF32 \

@@ -13,6 +13,10 @@ function copyIn(m, bytes) {
   m.HEAPU8.set(bytes, ptr);
   return ptr;
 }
+function display(m) {
+  const count = m._web_frame(), start = m._web_list() >> 2;
+  return Array.from(m.HEAPF32.subarray(start, start + count * 19));
+}
 
 (async () => {
   // One valid red pixel in the old RGBA run-length format (PCTA2).
@@ -42,6 +46,23 @@ function copyIn(m, bytes) {
     assert.equal(m._web_audio(), audio, 'audio buffer address stays fixed');
     assert(m.HEAP16.subarray(audio >> 1, (audio >> 1) + 4096).every(n => n === 0),
       'silent callback clears all 2048 stereo frames');
+    const menu = display(m);
+    m._web_pointer(20, 20, 1);
+    m._web_pointer(20, 20, 0);
+    assert.deepEqual(display(m), menu, 'far miss does not activate Play');
+    m._web_pointer(202, 234, 1);
+    const held = display(m);
+    m._web_pointer(-1, -1, 1);
+    m._web_pointer(202, 234, 0);
+    m._web_pointer(-1, -1, 0);
+    assert.deepEqual(display(m), menu, 'leaving the stage cancels a held click');
+    // Real artwork fixture from pico-c/tests/test_touch_game.c: outside Play's hit shape.
+    m._web_pointer(194, 234, 1);
+    assert.deepEqual(display(m), held, 'near miss captures Play without starting on press');
+    m._web_pointer(194, 234, 0);
+    const intro = display(m);
+    assert.notDeepEqual(intro, menu, 'near miss activates Play on release');
+    assert.notDeepEqual(intro, held, 'release leaves the held button state');
   }
   const m = await createModule({ wasmBinary });
   const art = read('build/app/assets/pico_art_rgba.pcta');
@@ -56,5 +77,5 @@ function copyIn(m, bytes) {
     audible = m.HEAP16.subarray(at, at + 4096).some(n => n !== 0) || audible;
   }
   assert(audible, 'intro produces PCM from the bundled sound bank');
-  console.log('web wasm: legacy rejection, both art packs, intro sound and fixed audio buffer passed');
+  console.log('web wasm: legacy rejection, both art packs, pointer tolerance, intro sound and fixed audio buffer passed');
 })().catch(err => { console.error(err); process.exitCode = 1; });
