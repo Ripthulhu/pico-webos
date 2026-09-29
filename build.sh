@@ -31,6 +31,7 @@ cp "$here/app/icon.png" "$here/app/largeIcon.png" "$out/" 2>/dev/null || true
 for f in pico_art_rgba.pcta pico_art_rgba_2x.pcta pico_sound_adpcm.pcts; do
   cp "$root/assets/$f" "$out/assets/"
 done
+node "$here/test-web.cjs"
 if command -v ares-package >/dev/null 2>&1; then
   ares-package --no-minify "$out" -o "$here/build"
   node "$here/make-repo.cjs"

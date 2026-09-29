@@ -17,8 +17,8 @@
 static HostApp app;
 static PicoAudio mixer;
 static int have_audio;
-static int16_t *audio_out;
-static size_t audio_capacity;
+enum { AUDIO_FRAMES = 2048 };
+static int16_t audio_out[AUDIO_FRAMES * 2];
 
 static void sound_event(void *user, const PicoSoundEvent *event) {
     (void)user;
@@ -39,6 +39,10 @@ EMSCRIPTEN_KEEPALIVE int web_open(const void *art, size_t art_size, const void *
     have_audio = sound && pico_audio_init(&mixer, sound, sound_size, rate, 2);
     if (!host_open_memory(&app, art, art_size, 550, 350, 0, 0, &sink))
         return 0;
+    if (app.assets.version != 3) {
+        host_close(&app);
+        return 0;
+    }
     return have_audio ? 2 : 1;
 }
 
@@ -113,32 +117,18 @@ EMSCRIPTEN_KEEPALIVE uint8_t *web_leaf(unsigned index) {
     for (y = 0; y < h; y++) {
         uint32_t start = u32(p + rows + 4 * y);
         uint8_t *out = leaf + (size_t)y * w * 4;
-        int mode;
-        if (app.assets.version == 3) {
-            mode = decode_row(p + start, u32(p + rows + 4 * (y + 1)) - start, w, scratch);
-            if (!mode)
-                return NULL;
-            for (x = 0; x < w; x++) {
-                unsigned a = mode == 1 ? scratch[x * 4 + 3] : scratch[w * 3 + x];
-                unsigned rr = mode == 1 ? scratch[x * 4] : scratch[x];
-                unsigned g = mode == 1 ? scratch[x * 4 + 1] : scratch[w + x];
-                unsigned b = mode == 1 ? scratch[x * 4 + 2] : scratch[w * 2 + x];
-                out[x * 4] = (uint8_t)((rr * a + 127) / 255);
-                out[x * 4 + 1] = (uint8_t)((g * a + 127) / 255);
-                out[x * 4 + 2] = (uint8_t)((b * a + 127) / 255);
-                out[x * 4 + 3] = (uint8_t)a;
-            }
-        } else {
-            /* Packs 1 and 2 are run-length rows; sample() walks them. */
-            RowCursor cur = {-1, 0, 0, 0, 0, 0, 0};
-            for (x = 0; x < w; x++) {
-                uint32_t v = sample(&app.assets, r, (int)x, (int)y, &cur, scratch);
-                unsigned a = v >> 24;
-                out[x * 4] = (uint8_t)((((v >> 16) & 255) * a + 127) / 255);
-                out[x * 4 + 1] = (uint8_t)((((v >> 8) & 255) * a + 127) / 255);
-                out[x * 4 + 2] = (uint8_t)(((v & 255) * a + 127) / 255);
-                out[x * 4 + 3] = (uint8_t)a;
-            }
+        int mode = decode_row(p + start, u32(p + rows + 4 * (y + 1)) - start, w, scratch);
+        if (!mode)
+            return NULL;
+        for (x = 0; x < w; x++) {
+            unsigned a = mode == 1 ? scratch[x * 4 + 3] : scratch[w * 3 + x];
+            unsigned rr = mode == 1 ? scratch[x * 4] : scratch[x];
+            unsigned g = mode == 1 ? scratch[x * 4 + 1] : scratch[w + x];
+            unsigned b = mode == 1 ? scratch[x * 4 + 2] : scratch[w * 2 + x];
+            out[x * 4] = (uint8_t)((rr * a + 127) / 255);
+            out[x * 4 + 1] = (uint8_t)((g * a + 127) / 255);
+            out[x * 4 + 2] = (uint8_t)((b * a + 127) / 255);
+            out[x * 4 + 3] = (uint8_t)a;
         }
     }
     leaf_size[0] = w;
@@ -155,18 +145,11 @@ EMSCRIPTEN_KEEPALIVE void web_pointer(double x, double y, int down) {
         pico_pointer(&app.game, (int32_t)(x * 65536.0), (int32_t)(y * 65536.0), down);
 }
 
-/* Interleaved stereo PCM16 for the page's audio callback. */
-EMSCRIPTEN_KEEPALIVE int16_t *web_audio(unsigned frames) {
-    if (frames * 2 > audio_capacity) {
-        free(audio_out);
-        audio_out = (int16_t *)malloc(frames * 2 * sizeof(int16_t));
-        audio_capacity = audio_out ? frames * 2 : 0;
-    }
-    if (!audio_out)
-        return NULL;
+/* Interleaved stereo PCM16, matching the page's 2048-frame audio callback. */
+EMSCRIPTEN_KEEPALIVE int16_t *web_audio(void) {
     if (have_audio)
-        pico_audio_render(&mixer, audio_out, frames);
+        pico_audio_render(&mixer, audio_out, AUDIO_FRAMES);
     else
-        memset(audio_out, 0, frames * 2 * sizeof(int16_t));
+        memset(audio_out, 0, sizeof(audio_out));
     return audio_out;
 }

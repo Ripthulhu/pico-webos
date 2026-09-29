@@ -27,7 +27,8 @@ source /path/to/emsdk/emsdk_env.sh
 ```
 
 The IPK lands in `build/`, and `repo.json` is rewritten with its hash and size.
-`node serve.cjs` serves the app on port 8790 for a look in a browser.
+The build checks the artwork and audio paths; rerun them with `node test-web.cjs`.
+`python3 -m http.server 8790 --directory build/app` serves it for a look in a browser.
 
 Pico's School was created by Tom Fulp and Newgrounds. This is an unofficial port,
 and the original game, artwork and audio belong to their creators.

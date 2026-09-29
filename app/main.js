@@ -17,10 +17,10 @@
 
   var canvas = document.getElementById('screen'), status = document.getElementById('status');
   var stats = document.getElementById('stats');
-  var M, gl, draw, audio = null, running = false, paused = false;
+  var M, gl, draw, audio = null, paused = false;
   var next = 0, dirty = true, down = 0, frameNo = 0;
   var textures = {}, textureBytes = 0;
-  var perf = { frames: 0, ticks: 0, tick: 0, list: 0, draw: 0, leaves: 0, decodes: 0, since: 0 };
+  var perf = { frames: 0, ticks: 0, list: 0, draw: 0, leaves: 0, decodes: 0, since: 0 };
 
   function load(url) {
     return new Promise(function (resolve, reject) {
@@ -184,7 +184,7 @@
       var left = e.outputBuffer.getChannelData(0), right = e.outputBuffer.getChannelData(1);
       var n = left.length, i;
       if (paused) { left.fill(0); right.fill(0); return; }
-      var ptr = M._web_audio(n) >> 1, pcm = M.HEAP16;
+      var ptr = M._web_audio() >> 1, pcm = M.HEAP16;
       for (i = 0; i < n; i++) {
         left[i] = pcm[ptr + i * 2] / 32768;
         right[i] = pcm[ptr + i * 2 + 1] / 32768;
@@ -198,10 +198,9 @@
   }
 
   function frame(now) {
-    if (!running) return;
     requestAnimationFrame(frame);
     if (paused) return;
-    var t = now / 1000, ticks = 0, a = performance.now();
+    var t = now / 1000, ticks = 0;
     if (!next) next = t;
     // Never drop game time, but cap catch-up so a stall can't freeze drawing.
     while (t >= next && ticks < 8) {
@@ -211,7 +210,6 @@
       dirty = true;
     }
     if (t - next > 1) next = t;
-    perf.tick += performance.now() - a;
     // The picture only changes on a tick or a pointer move. Skipping a frame
     // leaves the last one on screen.
     if (dirty) {
@@ -232,7 +230,7 @@
         Math.round(perf.leaves / n) + ' leaves\n' +
         'textures ' + (textureBytes / 1048576).toFixed(0) + ' MB  decoded ' + perf.decodes + '  ' +
         canvas.width + 'x' + canvas.height;
-    perf.frames = perf.ticks = perf.tick = perf.list = perf.draw = perf.leaves = perf.decodes = 0;
+    perf.frames = perf.ticks = perf.list = perf.draw = perf.leaves = perf.decodes = 0;
     perf.since = now;
   }
 
@@ -272,7 +270,6 @@
       if (!setup()) throw new Error('This TV has no WebGL.');
       fit();
       status.style.display = 'none';
-      running = true;
       startAudio();
       requestAnimationFrame(frame);
     })
